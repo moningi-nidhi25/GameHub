@@ -14,6 +14,7 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.core.mail import send_mail
 from django.conf import settings
+from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiResponse
 import json
 
 
@@ -26,6 +27,30 @@ def get_user_profile(user):
 # AUTH ENDPOINTS
 # ============================================================
 
+@extend_schema(
+    tags=['Authentication'],
+    summary='Login with username/email and password',
+    description=(
+        'Authenticates a user and returns a JWT access token and refresh token. '
+        'Accepts either a **username** or **email** in the `username` field.'
+    ),
+    request={
+        'application/json': {
+            'type': 'object',
+            'properties': {
+                'username': {'type': 'string', 'description': 'Username or email address'},
+                'password': {'type': 'string', 'description': 'Account password'},
+            },
+            'required': ['username', 'password'],
+        }
+    },
+    responses={
+        200: OpenApiResponse(description='Login successful. Returns access, refresh tokens and user data.'),
+        400: OpenApiResponse(description='Missing required fields.'),
+        401: OpenApiResponse(description='Invalid username or password.'),
+        403: OpenApiResponse(description='Account is inactive.'),
+    },
+)
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def api_login(request):
@@ -68,6 +93,32 @@ def api_login(request):
     })
 
 
+@extend_schema(
+    tags=['Authentication'],
+    summary='Register a new player account',
+    description=(
+        'Creates a new GameHub user account and returns JWT tokens for immediate login. '
+        'All fields are required. Email and username must be unique across the system.'
+    ),
+    request={
+        'application/json': {
+            'type': 'object',
+            'properties': {
+                'first_name': {'type': 'string'},
+                'last_name': {'type': 'string'},
+                'username': {'type': 'string', 'description': 'Must be unique'},
+                'email': {'type': 'string', 'format': 'email', 'description': 'Must be unique'},
+                'password1': {'type': 'string', 'description': 'Password'},
+                'password2': {'type': 'string', 'description': 'Confirm password (must match password1)'},
+            },
+            'required': ['first_name', 'last_name', 'username', 'email', 'password1', 'password2'],
+        }
+    },
+    responses={
+        201: OpenApiResponse(description='Registration successful. Returns tokens and user object.'),
+        400: OpenApiResponse(description='Validation error — missing fields, passwords do not match, or duplicate username/email.'),
+    },
+)
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def api_register(request):
@@ -115,6 +166,12 @@ def api_register(request):
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+@extend_schema(
+    tags=['Authentication'],
+    summary='Logout (client-side token invalidation)',
+    description='JWT logout is handled client-side by deleting the stored tokens. This endpoint confirms the logout action.',
+    responses={200: OpenApiResponse(description='Logged out successfully.')},
+)
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def api_logout(request):
@@ -123,6 +180,25 @@ def api_logout(request):
     return Response({'message': 'Logged out successfully.'})
 
 
+@extend_schema(
+    tags=['Authentication'],
+    summary='Request a password reset email',
+    description=(
+        'Sends a password reset link to the given email if an account exists. '
+        'In **DEBUG mode**, the reset URL is also returned in the response body for testing.'
+    ),
+    request={
+        'application/json': {
+            'type': 'object',
+            'properties': {'email': {'type': 'string', 'format': 'email'}},
+            'required': ['email'],
+        }
+    },
+    responses={
+        200: OpenApiResponse(description='Reset email sent (or silently skipped if no account found).'),
+        400: OpenApiResponse(description='Email is required.'),
+    },
+)
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def api_forgot_password(request):
@@ -156,6 +232,26 @@ def api_forgot_password(request):
     return Response(response_data)
 
 
+@extend_schema(
+    tags=['Authentication'],
+    summary='Confirm password reset with token',
+    description='Validates the UID and token from the reset email and sets the new password.',
+    request={
+        'application/json': {
+            'type': 'object',
+            'properties': {
+                'uid': {'type': 'string', 'description': 'Base64-encoded user ID from reset link'},
+                'token': {'type': 'string', 'description': 'Password reset token from email link'},
+                'password': {'type': 'string', 'description': 'The new password to set'},
+            },
+            'required': ['uid', 'token', 'password'],
+        }
+    },
+    responses={
+        200: OpenApiResponse(description='Password reset successful.'),
+        400: OpenApiResponse(description='Invalid or expired token, or missing fields.'),
+    },
+)
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def api_reset_password(request):
@@ -180,6 +276,22 @@ def api_reset_password(request):
         return Response({'error': 'Invalid or expired reset link.'}, status=status.HTTP_400_BAD_REQUEST)
 
 
+@extend_schema(
+    tags=['Authentication'],
+    summary='Refresh JWT access token',
+    description='Accepts a valid refresh token and returns a new access token.',
+    request={
+        'application/json': {
+            'type': 'object',
+            'properties': {'refresh': {'type': 'string', 'description': 'A valid JWT refresh token'}},
+            'required': ['refresh'],
+        }
+    },
+    responses={
+        200: OpenApiResponse(description='New access token returned.'),
+        401: OpenApiResponse(description='Refresh token is invalid or expired.'),
+    },
+)
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def api_token_refresh(request):
@@ -199,6 +311,19 @@ def api_token_refresh(request):
 # USER / PROFILE
 # ============================================================
 
+@extend_schema(
+    tags=['Profile'],
+    summary='Get authenticated user profile',
+    description=(
+        'Returns the current user\'s data, profile stats (visits, plays, score), '
+        'and all per-game high scores. **Requires Bearer token.**\n\n'
+        'Score formula: `visits + (plays × 5)`'
+    ),
+    responses={
+        200: OpenApiResponse(description='User profile, stats and game scores returned successfully.'),
+        401: OpenApiResponse(description='Authentication credentials were not provided or are invalid.'),
+    },
+)
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def api_profile(request):
@@ -235,6 +360,15 @@ def api_profile(request):
 # LEADERBOARD
 # ============================================================
 
+@extend_schema(
+    tags=['Leaderboard'],
+    summary='Get global player leaderboard',
+    description=(
+        'Returns all players ranked by their total score in descending order. '
+        'Score formula: `visits + (plays × 5)`. No authentication required.'
+    ),
+    responses={200: OpenApiResponse(description='Ranked list of all players with their stats.')},
+)
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def api_leaderboard(request):
@@ -259,6 +393,15 @@ def api_leaderboard(request):
 # GAME TRACKING
 # ============================================================
 
+@extend_schema(
+    tags=['Game Tracking'],
+    summary='Record a game page visit',
+    description='Increments the authenticated user\'s visit counter by 1. Called when a game page is opened.',
+    responses={
+        200: OpenApiResponse(description='Visit recorded. Returns updated visits, plays, and score.'),
+        500: OpenApiResponse(description='Internal server error.'),
+    },
+)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def api_add_visit(request):
@@ -273,6 +416,15 @@ def api_add_visit(request):
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+@extend_schema(
+    tags=['Game Tracking'],
+    summary='Record a game play',
+    description='Increments the authenticated user\'s play counter by 1. Worth 5× more than a visit in score calculation.',
+    responses={
+        200: OpenApiResponse(description='Play recorded. Returns updated visits, plays, and score.'),
+        500: OpenApiResponse(description='Internal server error.'),
+    },
+)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def api_add_play(request):
@@ -286,6 +438,25 @@ def api_add_play(request):
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+@extend_schema(
+    tags=['Game Tracking'],
+    summary='Save a game high score',
+    description='Saves the player\'s score for a specific game. Only updates if the new score is **higher** than the current high score.',
+    request={
+        'application/json': {
+            'type': 'object',
+            'properties': {
+                'game_id': {'type': 'string', 'description': 'Unique slug of the game (e.g. `snake`, `tetris`)'},
+                'score': {'type': 'integer', 'description': 'The score achieved in this session'},
+            },
+            'required': ['game_id', 'score'],
+        }
+    },
+    responses={
+        200: OpenApiResponse(description='Score saved or updated. Returns the current high score.'),
+        400: OpenApiResponse(description='Missing game_id or score.'),
+    },
+)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def api_save_score(request):
@@ -310,6 +481,24 @@ def api_save_score(request):
 # FEEDBACK
 # ============================================================
 
+@extend_schema(
+    tags=['Feedback'],
+    summary='Submit user feedback or a support message',
+    description='Stores a message from the user (or an anonymous visitor) in the database.',
+    request={
+        'application/json': {
+            'type': 'object',
+            'properties': {
+                'content': {'type': 'string', 'description': 'The feedback message content'},
+            },
+            'required': ['content'],
+        }
+    },
+    responses={
+        200: OpenApiResponse(description='Feedback received successfully.'),
+        400: OpenApiResponse(description='Content field is required.'),
+    },
+)
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def api_send_feedback(request):
