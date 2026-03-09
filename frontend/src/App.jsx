@@ -20,6 +20,7 @@ import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import ScrollToTop from './components/ScrollToTop';
 import BackToTop from './components/BackToTop/BackToTop';
+import PWAInstallPrompt from './components/PWAInstallPrompt';
 
 const AppLayout = () => {
   const location = useLocation();
@@ -62,6 +63,9 @@ const AppLayout = () => {
 
       {/* Floating Back to Top Button - hidden on game play & auth pages */}
       {!isPlaying && !isAuthPage && <BackToTop />}
+
+      {/* PWA Install Prompt - shows when app can be installed */}
+      {!isPlaying && <PWAInstallPrompt />}
     </div>
   );
 };
