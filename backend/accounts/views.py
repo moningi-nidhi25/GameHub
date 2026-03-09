@@ -520,3 +520,155 @@ def api_send_feedback(request):
 def logout(request):
     auth.logout(request)
     return __import__('django.shortcuts', fromlist=['redirect']).redirect('/')
+
+
+# ============================================================
+# GOOGLE OAUTH 2.0 — Issue #348
+# ============================================================
+
+@extend_schema(
+    tags=['Authentication'],
+    summary='Login or register via Google OAuth2.0',
+    description=(
+        'Accepts a Google **id_token** (credential) from the frontend `@react-oauth/google` library. '
+        'Verifies the token with Google\'s public keys, then:\n\n'
+        '- If the email exists: logs in the existing user.\n'
+        '- If the email is new: auto-creates a new user account using the Google profile data.\n\n'
+        'Returns the same JWT `access` and `refresh` tokens as the standard login endpoint.'
+    ),
+    request={
+        'application/json': {
+            'type': 'object',
+            'properties': {
+                'credential': {
+                    'type': 'string',
+                    'description': 'The Google id_token (JWT) returned by the Google Identity Services SDK.'
+                }
+            },
+            'required': ['credential'],
+        }
+    },
+    responses={
+        200: OpenApiResponse(description='Login/registration successful. Returns access & refresh JWT tokens + user data.'),
+        400: OpenApiResponse(description='Credential is missing.'),
+        401: OpenApiResponse(description='Invalid or expired Google token.'),
+        500: OpenApiResponse(description='GOOGLE_CLIENT_ID is not configured on the server.'),
+    },
+)
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def api_google_login(request):
+    """
+    Accept a Google id_token (credential) from the frontend GoogleLogin component.
+    Verifies it locally using google-auth library (no extra network call needed),
+    then creates or logs in the GameHub user and returns JWT tokens.
+    """
+    import logging
+    from django.conf import settings as django_settings
+
+    logger = logging.getLogger(__name__)
+
+    credential = request.data.get('credential', '').strip()
+
+    if not credential:
+        return Response({'error': 'Google credential is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    # ── Step 1: Verify the Google id_token using google-auth ──────
+    try:
+        from google.oauth2 import id_token
+        from google.auth.transport import requests as google_requests
+
+        google_client_id = getattr(django_settings, 'GOOGLE_CLIENT_ID', '')
+        if not google_client_id:
+            logger.error('GOOGLE_CLIENT_ID is not configured in Django settings.')
+            return Response(
+                {'error': 'Google login is not configured on the server.'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+        # This verifies the token signature, expiry, and audience — no network call needed
+        google_data = id_token.verify_oauth2_token(
+            credential,
+            google_requests.Request(),
+            google_client_id,
+            clock_skew_in_seconds=10,
+        )
+        logger.info(f"Google id_token verified for: {google_data.get('email', 'unknown')}")
+
+    except ValueError as e:
+        logger.error(f"Google id_token validation failed: {str(e)}")
+        return Response(
+            {'error': f'Invalid Google token: {str(e)}'},
+            status=status.HTTP_401_UNAUTHORIZED
+        )
+    except Exception as e:
+        logger.error(f"Google token verification unexpected error: {str(e)}", exc_info=True)
+        return Response(
+            {'error': f'Could not verify Google token: {str(e)}'},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+    # ── Step 2: Extract verified data ────────────────────────────
+    verified_email      = google_data.get('email', '').lower()
+    verified_first_name = google_data.get('given_name', '')
+    verified_last_name  = google_data.get('family_name', '')
+    email_verified      = google_data.get('email_verified', False)
+
+    if not verified_email:
+        return Response({'error': 'Google account has no email address.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    if not email_verified:
+        return Response({'error': 'Google email address is not verified.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    # ── Step 3: Find or create the Django user ────────────────────
+    user = User.objects.filter(email__iexact=verified_email).first()
+
+    if user is None:
+        base_username = verified_email.split('@')[0].replace('.', '_').replace('-', '_')
+        username = base_username
+        counter = 1
+        while User.objects.filter(username=username).exists():
+            username = f"{base_username}_{counter}"
+            counter += 1
+
+        try:
+            user = User.objects.create_user(
+                username=username,
+                email=verified_email,
+                first_name=verified_first_name,
+                last_name=verified_last_name,
+                password=User.objects.make_random_password(),
+            )
+            get_user_profile(user)
+            is_new_user = True
+            logger.info(f"New user created via Google: {username} ({verified_email})")
+        except Exception as e:
+            logger.error(f"Failed to create user: {str(e)}", exc_info=True)
+            return Response({'error': f'Failed to create account: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    else:
+        updated = False
+        if not user.first_name and verified_first_name:
+            user.first_name = verified_first_name
+            updated = True
+        if not user.last_name and verified_last_name:
+            user.last_name = verified_last_name
+            updated = True
+        if updated:
+            user.save()
+        is_new_user = False
+        logger.info(f"Existing user logged via Google: {user.username} ({verified_email})")
+
+    # ── Step 4: Issue GameHub JWT tokens ─────────────────────────
+    refresh = RefreshToken.for_user(user)
+    return Response({
+        'access':     str(refresh.access_token),
+        'refresh':    str(refresh),
+        'is_new_user': is_new_user,
+        'user': {
+            'id':         user.id,
+            'username':   user.username,
+            'email':      user.email,
+            'first_name': user.first_name,
+            'last_name':  user.last_name,
+        }
+    }, status=status.HTTP_200_OK)

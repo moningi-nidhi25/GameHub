@@ -5,3 +5,4 @@ django-cors-headers
 Pillow
 python-dotenv
 drf-spectacular
+google-auth

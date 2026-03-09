@@ -4,8 +4,12 @@ Django settings for gamehub_project project.
 
 from pathlib import Path
 from datetime import timedelta
+import os
+from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+load_dotenv(BASE_DIR / '.env')
 
 SECRET_KEY = 'django-insecure-bht$bvpl4(l3j3zm3h^b1y%23j&tu^_gm#^i!e=ouf2h7e$e_3'
 
@@ -121,6 +125,16 @@ CORS_ALLOW_HEADERS = [
     'content-type', 'dnt', 'origin', 'user-agent',
     'x-csrftoken', 'x-requested-with',
 ]
+
+# ============================================================
+# Security Headers — Allow Google OAuth popup windows
+# ============================================================
+# This is CRITICAL for Google Sign-In popup to work.
+# Without this, browsers with COOP=same-origin will block the popup.
+SECURE_CROSS_ORIGIN_OPENER_POLICY = 'same-origin-allow-popups'
+
+# Google OAuth2.0 Client ID (loaded from .env)
+GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID', '')
 # ============================================================
 # Email Settings (Development)
 # ============================================================

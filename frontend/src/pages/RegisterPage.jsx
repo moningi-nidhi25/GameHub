@@ -5,6 +5,7 @@ import { useAuthStore } from '../store/authStore';
 import { UserPlus, User, Mail, Lock, Gamepad2, AlertCircle, ArrowLeft } from 'lucide-react';
 import api from '../api/axios';
 import SEO from '../components/SEO/SEO';
+import GoogleAuthButton from '../components/GoogleAuth/GoogleAuthButton';
 
 const RegisterPage = () => {
     const [formData, setFormData] = useState({
@@ -59,7 +60,7 @@ const RegisterPage = () => {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center px-6 bg-[#050508] relative overflow-hidden">
+        <div className="min-h-screen flex items-center justify-center px-6 py-24 bg-[#050508] relative overflow-x-hidden overflow-y-auto">
             <SEO
                 title="Register"
                 description="Join the GameHub network and create your operative profile. Get access to 50+ browser games and the global leaderboard."
@@ -216,7 +217,10 @@ const RegisterPage = () => {
                     </div>
                 </form>
 
-                <div className="mt-10 pt-10 border-t border-white/5 text-center text-gray-400 text-sm">
+                {/* Google OAuth — Issue #348 */}
+                <GoogleAuthButton mode="register" />
+
+                <div className="mt-6 pt-6 border-t border-white/5 text-center text-gray-400 text-sm">
                     Already have an account? {' '}
                     <Link to="/login" className="text-purple-400 font-bold hover:text-purple-300 transition-colors inline-flex items-center gap-1 group">
                         Login Now
