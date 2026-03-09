@@ -1,10 +1,16 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Target, Users, Zap, Shield, Rocket, Globe } from 'lucide-react';
+import SEO from '../components/SEO/SEO';
 
 const AboutPage = () => {
     return (
         <div className="bg-[#050508] min-h-screen pt-32 pb-20 overflow-hidden">
+            <SEO
+                title="Our Story"
+                description="Learn about GameHub - our mission to bring zero-lag, high-performance browser gaming to everyone, everywhere."
+                keywords="about gamehub, gaming company, cosmic gaming platform, browser gaming community"
+            />
             {/* Background Glows */}
             <div className="fixed top-1/4 -left-20 w-[500px] h-[500px] bg-purple-600/10 blur-[120px] rounded-full pointer-events-none" />
             <div className="fixed bottom-1/4 -right-20 w-[500px] h-[500px] bg-blue-600/10 blur-[120px] rounded-full pointer-events-none" />

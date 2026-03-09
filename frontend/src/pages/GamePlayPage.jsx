@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { games } from '../data/games';
 import { ArrowLeft, RotateCcw } from 'lucide-react';
+import SEO from '../components/SEO/SEO';
 
 const GamePlayPage = () => {
     const { gameId } = useParams();
@@ -29,6 +30,11 @@ const GamePlayPage = () => {
 
     return (
         <div className="min-h-screen flex flex-col bg-[#050508]">
+            <SEO
+                title={`Play ${game.title}`}
+                description={`Play ${game.title} instantly in your browser on GameHub. ${game.description || 'No downloads needed.'}`}
+                keywords={`${game.title}, browser game, free online game, instant play`}
+            />
             {/* Top Minimal Controller Header - Always Visible */}
             <header className="h-16 px-6 flex justify-between items-center bg-[#0a0a0f] border-b border-white/5 relative z-10 shadow-2xl">
                 <div className="flex items-center gap-6">

@@ -15,6 +15,7 @@ import {
     Activity,
     Lock
 } from 'lucide-react';
+import SEO from '../components/SEO/SEO';
 
 const ProfilePage = () => {
     const { user, logout, isAuthenticated } = useAuthStore();
@@ -66,6 +67,11 @@ const ProfilePage = () => {
 
     return (
         <div className="min-h-screen bg-[#050508] pt-32 pb-20 px-6 relative overflow-hidden">
+            <SEO
+                title={`${userData?.username || 'My'} Profile`}
+                description="Manage your GameHub operative profile, credentials, and security settings."
+                keywords="gamer profile, account settings, gamehub identity"
+            />
             {/* Ambient Background Effects */}
             <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
                 <div className="absolute top-[10%] left-[5%] w-[500px] h-[500px] bg-purple-600/10 blur-[150px] rounded-full animate-pulse-slow" />

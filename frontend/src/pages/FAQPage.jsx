@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HelpCircle, ChevronDown, Cpu, Shield, Zap, Globe, MessageSquare } from 'lucide-react';
+import SEO from '../components/SEO/SEO';
 
 const FAQItem = ({ question, answer, icon: Icon, index }) => {
     const [isOpen, setIsOpen] = useState(false);
@@ -15,8 +16,8 @@ const FAQItem = ({ question, answer, icon: Icon, index }) => {
             <button
                 onClick={() => setIsOpen(!isOpen)}
                 className={`w-full p-6 rounded-2xl border transition-all duration-500 flex items-center justify-between text-left group backdrop-blur-xl ${isOpen
-                        ? 'bg-purple-500/10 border-purple-500/30'
-                        : 'bg-white/5 border-white/10 hover:border-purple-500/20'
+                    ? 'bg-purple-500/10 border-purple-500/30'
+                    : 'bg-white/5 border-white/10 hover:border-purple-500/20'
                     }`}
             >
                 <div className="flex items-center gap-4">
@@ -79,6 +80,11 @@ const FAQPage = () => {
 
     return (
         <div className="pt-32 pb-20 px-6 min-h-screen bg-[#050508] relative overflow-hidden font-rajdhani">
+            <SEO
+                title="FAQ"
+                description="Find answers to frequently asked questions about GameHub - from account setup to gameplay tips and platform performance."
+                keywords="gamehub faq, help, how to play, gaming questions, browser game support"
+            />
             {/* Cosmic Background Elements */}
             <div className="absolute top-0 right-1/4 w-[600px] h-[600px] bg-blue-600/5 blur-[120px] rounded-full pointer-events-none" />
             <div className="absolute bottom-10 left-1/4 w-[600px] h-[600px] bg-purple-600/5 blur-[120px] rounded-full pointer-events-none" />

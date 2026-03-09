@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { History, Zap, Cpu, Shield, Globe, Terminal, Rocket } from 'lucide-react';
+import SEO from '../components/SEO/SEO';
 
 const DevLogItem = ({ date, version, title, items, icon: Icon, color, index }) => (
     <motion.div
@@ -95,6 +96,11 @@ const DevLogsPage = () => {
 
     return (
         <div className="pt-32 pb-20 px-6 min-h-screen bg-[#050508] relative overflow-hidden font-rajdhani">
+            <SEO
+                title="Dev Logs"
+                description="Trace the evolution of GameHub through detailed development logs. See every version, update, and cosmic leap in the platform's history."
+                keywords="gamehub devlogs, changelog, development history, gaming platform updates"
+            />
             {/* Cosmic Background Effects */}
             <div className="absolute top-0 right-1/4 w-[600px] h-[600px] bg-purple-600/5 blur-[120px] rounded-full pointer-events-none" />
             <div className="absolute bottom-10 left-1/4 w-[600px] h-[600px] bg-blue-600/5 blur-[120px] rounded-full pointer-events-none" />

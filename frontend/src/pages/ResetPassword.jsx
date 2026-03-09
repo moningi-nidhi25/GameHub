@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Lock, CheckCircle, AlertCircle, ArrowRight, Shield } from 'lucide-react';
 import api from '../api/axios';
+import SEO from '../components/SEO/SEO';
 
 const ResetPassword = () => {
     const { uid, token } = useParams();
@@ -39,6 +40,11 @@ const ResetPassword = () => {
 
     return (
         <div className="min-h-screen flex items-center justify-center px-4 py-20 relative overflow-hidden">
+            <SEO
+                title="Reset Password"
+                description="Set a new password for your GameHub account using your secure reset link."
+                keywords="reset password, new password, gamehub security, account update"
+            />
             {/* Background Effects */}
             <div className="absolute top-1/4 -left-20 w-80 h-80 bg-purple-600/20 rounded-full blur-[100px] animate-pulse" />
             <div className="absolute bottom-1/4 -right-20 w-80 h-80 bg-blue-600/20 rounded-full blur-[100px] animate-pulse delay-700" />
