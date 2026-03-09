@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Trophy, Medal, User, Activity } from 'lucide-react';
 import api from '../api/axios';
+import SEO from '../components/SEO/SEO';
 
 const LeaderboardPage = () => {
     const [leaders, setLeaders] = useState([]);
@@ -32,6 +33,11 @@ const LeaderboardPage = () => {
 
     return (
         <div className="pt-32 pb-24 container mx-auto px-8 md:px-12 lg:px-16 min-h-screen">
+            <SEO
+                title="Leaderboard"
+                description="View the top-ranked players and global champions on GameHub. See who leads the cosmic rankings."
+                keywords="gaming leaderboard, high scores, gamehub champions, top players"
+            />
             <div className="text-center mb-16">
                 <motion.h1
                     initial={{ y: -20, opacity: 0 }}

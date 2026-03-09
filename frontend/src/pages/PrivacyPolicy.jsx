@@ -1,10 +1,16 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Shield, Eye, Lock, FileText, Globe } from 'lucide-react';
+import SEO from '../components/SEO/SEO';
 
 const PrivacyPolicy = () => {
     return (
         <div className="pt-32 pb-20 px-6 min-h-screen bg-[#050508] relative overflow-hidden font-rajdhani">
+            <SEO
+                title="Privacy Policy"
+                description="Read GameHub's privacy manifesto. Learn how we protect your data with encrypted, decentralized protocols."
+                keywords="gamehub privacy, data protection, user privacy, secure gaming"
+            />
             {/* Background Effects */}
             <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600/5 blur-[120px] rounded-full pointer-events-none" />
             <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-purple-600/5 blur-[120px] rounded-full pointer-events-none" />

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, MessageSquare, Send, Globe, Github, Twitter, Headset } from 'lucide-react';
+import SEO from '../components/SEO/SEO';
 
 const ContactPage = () => {
     const [status, setStatus] = useState(null);
@@ -13,6 +14,11 @@ const ContactPage = () => {
 
     return (
         <div className="pt-32 pb-20 px-6 min-h-screen bg-[#050508] relative overflow-hidden font-rajdhani">
+            <SEO
+                title="Contact"
+                description="Get in touch with the GameHub development team. Report bugs, submit feedback, or enquire about partnerships."
+                keywords="contact gamehub, support, feedback, bug report, gaming help"
+            />
             {/* Cosmic Background Elements */}
             <div className="absolute top-0 right-1/4 w-[600px] h-[600px] bg-purple-600/5 blur-[120px] rounded-full pointer-events-none" />
             <div className="absolute bottom-10 left-1/4 w-[600px] h-[600px] bg-blue-600/5 blur-[120px] rounded-full pointer-events-none" />

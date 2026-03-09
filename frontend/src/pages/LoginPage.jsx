@@ -4,6 +4,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { LogIn, User, Lock, ArrowRight, Gamepad2, AlertCircle, ArrowLeft } from 'lucide-react';
 import api from '../api/axios';
+import SEO from '../components/SEO/SEO';
 
 const LoginPage = () => {
     const [formData, setFormData] = useState({ username: '', password: '' });
@@ -33,6 +34,11 @@ const LoginPage = () => {
 
     return (
         <div className="min-h-screen flex items-center justify-center px-6 bg-[#050508] relative overflow-hidden">
+            <SEO
+                title="Login"
+                description="Login to your GameHub account to access your profile, track scores and compete on the global leaderboard."
+                keywords="gamehub login, sign in, gaming account, player portal"
+            />
             {/* Background Decorative Elements */}
             <div className="absolute inset-0 z-0">
                 <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(79,70,229,0.1),transparent_50%)]" />

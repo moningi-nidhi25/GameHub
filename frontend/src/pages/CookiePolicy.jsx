@@ -1,10 +1,16 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Cpu, Database, HardDrive, Info, Layers } from 'lucide-react';
+import SEO from '../components/SEO/SEO';
 
 const CookiePolicy = () => {
     return (
         <div className="pt-32 pb-20 px-6 min-h-screen bg-[#050508] relative overflow-hidden font-rajdhani">
+            <SEO
+                title="Cookie Policy"
+                description="Understand how GameHub uses cookies and local cache to maintain your session and personalize your gaming experience."
+                keywords="gamehub cookies, cookie policy, terminal cache, browser storage"
+            />
             {/* Background Effects */}
             <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.03),transparent)] pointer-events-none" />
 

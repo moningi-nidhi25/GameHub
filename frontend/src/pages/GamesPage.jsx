@@ -4,6 +4,7 @@ import { games } from '../data/games';
 import GameCard from '../components/GameGrid/GameCard';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Filter, Gamepad2 } from 'lucide-react';
+import SEO from '../components/SEO/SEO';
 
 const GamesPage = () => {
     const navigate = useNavigate();
@@ -30,6 +31,11 @@ const GamesPage = () => {
 
     return (
         <div className="bg-[#050508] min-h-screen pt-32 pb-20">
+            <SEO
+                title="Games Library"
+                description="Browse GameHub's complete collection of 50+ instant-play browser games. Filter by category and find your next favorite title."
+                keywords="browser games library, free games, arcade games, puzzle games, instant play"
+            />
             {/* Page Header */}
             <div className="container mx-auto px-8 md:px-12 lg:px-16 mb-16">
                 <div className="flex flex-col md:flex-row justify-between items-center gap-8">

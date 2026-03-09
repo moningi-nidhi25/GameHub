@@ -4,6 +4,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { UserPlus, User, Mail, Lock, Gamepad2, AlertCircle, ArrowLeft } from 'lucide-react';
 import api from '../api/axios';
+import SEO from '../components/SEO/SEO';
 
 const RegisterPage = () => {
     const [formData, setFormData] = useState({
@@ -59,6 +60,11 @@ const RegisterPage = () => {
 
     return (
         <div className="min-h-screen flex items-center justify-center px-6 bg-[#050508] relative overflow-hidden">
+            <SEO
+                title="Register"
+                description="Join the GameHub network and create your operative profile. Get access to 50+ browser games and the global leaderboard."
+                keywords="gamehub register, create account, join gaming platform, sign up"
+            />
             {/* Background Decorative Elements */}
             <div className="absolute inset-0 z-0">
                 <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(79,70,229,0.1),transparent_50%)]" />
