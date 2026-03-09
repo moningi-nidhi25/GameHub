@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, ArrowLeft, Send, CheckCircle, AlertCircle } from 'lucide-react';
 import api from '../api/axios';
+import SEO from '../components/SEO/SEO';
 
 const ForgotPassword = () => {
     const [email, setEmail] = useState('');
@@ -29,6 +30,11 @@ const ForgotPassword = () => {
 
     return (
         <div className="min-h-screen flex items-center justify-center px-4 py-20 relative overflow-hidden">
+            <SEO
+                title="Forgot Password"
+                description="Reset your GameHub account password. Enter your email to receive a secure restoration link."
+                keywords="forgot password, account recovery, gamehub reset, password restoration"
+            />
             {/* Background Effects */}
             <div className="absolute top-1/4 -left-20 w-80 h-80 bg-blue-600/20 rounded-full blur-[100px] animate-pulse" />
             <div className="absolute bottom-1/4 -right-20 w-80 h-80 bg-purple-600/20 rounded-full blur-[100px] animate-pulse delay-700" />

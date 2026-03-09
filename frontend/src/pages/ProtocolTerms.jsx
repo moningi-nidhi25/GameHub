@@ -1,10 +1,16 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Terminal, Scale, AlertTriangle, CheckCircle2, Zap } from 'lucide-react';
+import SEO from '../components/SEO/SEO';
 
 const ProtocolTerms = () => {
     return (
         <div className="pt-32 pb-20 px-6 min-h-screen bg-[#050508] relative overflow-hidden font-rajdhani">
+            <SEO
+                title="Terms of Service"
+                description="Read GameHub's Terms of Operation. Understand the rules governing your access to the GameHub platform and mainframe."
+                keywords="gamehub terms, terms of service, gaming rules, platform agreement"
+            />
             {/* Background Effects */}
             <div className="absolute top-1/4 left-0 w-[400px] h-[400px] bg-purple-600/5 blur-[120px] rounded-full pointer-events-none" />
             <div className="absolute bottom-1/4 right-0 w-[400px] h-[400px] bg-blue-600/5 blur-[120px] rounded-full pointer-events-none" />

@@ -5,6 +5,7 @@ import { games } from '../data/games';
 import GameCard from '../components/GameGrid/GameCard';
 import { Rocket, Info, Sparkles, ArrowRight } from 'lucide-react';
 import GridScan from '../components/Backgrounds/GridScan';
+import SEO from '../components/SEO/SEO';
 
 const HomePage = () => {
     const navigate = useNavigate();
@@ -30,6 +31,11 @@ const HomePage = () => {
 
     return (
         <div className="min-h-screen flex flex-col">
+            <SEO
+                title="Home"
+                description="The ultimate hub for high-performance browser gaming with a cosmic neon aesthetic."
+                keywords="browser games, cosmic gaming, neon arcade, free online games"
+            />
             {/* Hero Section */}
             <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
                 <div className="absolute inset-0 z-0 bg-[#050508]">
