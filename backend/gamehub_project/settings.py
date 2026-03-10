@@ -4,8 +4,12 @@ Django settings for gamehub_project project.
 
 from pathlib import Path
 from datetime import timedelta
+import os
+from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+load_dotenv(BASE_DIR / '.env')
 
 SECRET_KEY = 'django-insecure-bht$bvpl4(l3j3zm3h^b1y%23j&tu^_gm#^i!e=ouf2h7e$e_3'
 
@@ -24,6 +28,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',
+    'drf_spectacular',
     'accounts',
 ]
 
@@ -92,6 +97,7 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticatedOrReadOnly',
     ),
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
 # ============================================================
@@ -119,8 +125,61 @@ CORS_ALLOW_HEADERS = [
     'content-type', 'dnt', 'origin', 'user-agent',
     'x-csrftoken', 'x-requested-with',
 ]
+
+# ============================================================
+# Security Headers — Allow Google OAuth popup windows
+# ============================================================
+# This is CRITICAL for Google Sign-In popup to work.
+# Without this, browsers with COOP=same-origin will block the popup.
+SECURE_CROSS_ORIGIN_OPENER_POLICY = 'same-origin-allow-popups'
+
+# Google OAuth2.0 Client ID (loaded from .env)
+GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID', '')
 # ============================================================
 # Email Settings (Development)
 # ============================================================
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 DEFAULT_FROM_EMAIL = 'noreply@gamehub.cosmos'
+
+# ============================================================
+# DRF Spectacular — OpenAPI 3.0 Schema Configuration
+# ============================================================
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'GameHub API — Cosmic Edition',
+    'DESCRIPTION': (
+        'The official REST API documentation for **GameHub: Cosmic Edition**. \n\n'
+        'All endpoints are served under `/api/`. Authentication uses **JWT Bearer tokens** — '
+        'login via `/api/auth/login/` to receive your `access` and `refresh` tokens, '
+        'then pass the `access` token in the `Authorization: Bearer <token>` header.\n\n'
+        '**Base URL:** `http://localhost:8000`'
+    ),
+    'VERSION': '2.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'CONTACT': {
+        'name': 'GameHub Development Team',
+        'email': 'support@gamehub.cosmos',
+    },
+    'LICENSE': {
+        'name': 'MIT License',
+    },
+    # Group endpoints by tag (maps to URL path prefixes)
+    'TAGS': [
+        {'name': 'Authentication', 'description': 'Login, registration, JWT token management, and password reset flows.'},
+        {'name': 'Profile', 'description': 'Retrieve or manage the authenticated user\'s profile and game statistics.'},
+        {'name': 'Leaderboard', 'description': 'Global leaderboard ranked by player score (visits + plays × 5).'},
+        {'name': 'Game Tracking', 'description': 'Track game visits, plays, and submit high scores.'},
+        {'name': 'Feedback', 'description': 'Submit user feedback or contact messages.'},
+    ],
+    # Swagger UI enhancements
+    'SWAGGER_UI_SETTINGS': {
+        'deepLinking': True,
+        'persistAuthorization': True,
+        'displayOperationId': False,
+        'defaultModelsExpandDepth': 2,
+    },
+    # Security — define JWT Bearer scheme for Swagger "Authorize" button
+    'SECURITY': [{'BearerAuth': []}],
+    'PREPROCESSING_HOOKS': ['drf_spectacular.hooks.preprocess_exclude_path_format'],
+    'POSTPROCESSING_HOOKS': ['drf_spectacular.hooks.postprocess_schema_enums'],
+    'COMPONENT_SPLIT_REQUEST': True,
+}

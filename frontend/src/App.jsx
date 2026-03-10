@@ -61,11 +61,7 @@ const AppLayout = () => {
 
       {!isAuthPage && <Footer />}
 
-      {/* Floating Back to Top Button - hidden on game play & auth pages */}
       {!isPlaying && !isAuthPage && <BackToTop />}
-
-      {/* PWA Install Prompt - shows when app can be installed */}
-      {!isPlaying && <PWAInstallPrompt />}
     </div>
   );
 };
@@ -74,6 +70,8 @@ function App() {
   return (
     <Router>
       <AppLayout />
+      {/* PWA Install Prompt — mounted once at app root, never remounts on route change */}
+      <PWAInstallPrompt />
     </Router>
   );
 }

@@ -9,6 +9,7 @@ urlpatterns = [
     path('api/auth/token/refresh/', views.api_token_refresh, name='api_token_refresh'),
     path('api/auth/password-reset/', views.api_forgot_password, name='api_forgot_password'),
     path('api/auth/password-reset-confirm/', views.api_reset_password, name='api_reset_password_confirm'),
+    path('api/auth/google/', views.api_google_login, name='api_google_login'),  # Issue #348
 
     # Data Endpoints
     path('api/profile/', views.api_profile, name='api_profile'),

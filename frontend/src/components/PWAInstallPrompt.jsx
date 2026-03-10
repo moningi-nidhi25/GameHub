@@ -2,78 +2,87 @@ import React, { useState, useEffect } from 'react';
 import { Download, X, Share } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
+// localStorage keys
+const DISMISSED_KEY = 'pwa_prompt_dismissed';
+const INSTALLED_KEY = 'pwa_installed';
+
 const PWAInstallPrompt = () => {
     const [installPrompt, setInstallPrompt] = useState(null);
     const [isVisible, setIsVisible] = useState(false);
     const [isIOS, setIsIOS] = useState(false);
-    const [isStandalone, setIsStandalone] = useState(false);
 
     useEffect(() => {
-        // Check if already installed or in standalone mode
-        const checkStandalone = () => {
-            return window.matchMedia('(display-mode: standalone)').matches ||
-                window.navigator.standalone === true;
-        };
+        // If user already dismissed or installed — never show again
+        if (localStorage.getItem(DISMISSED_KEY) || localStorage.getItem(INSTALLED_KEY)) {
+            return;
+        }
 
-        setIsStandalone(checkStandalone());
+        // Check if already running as installed standalone PWA
+        const isStandalone =
+            window.matchMedia('(display-mode: standalone)').matches ||
+            window.navigator.standalone === true;
 
-        // Check if it's iOS
+        if (isStandalone) {
+            localStorage.setItem(INSTALLED_KEY, '1');
+            return;
+        }
+
         const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
         setIsIOS(isIOSDevice);
 
+        // Android / Desktop Chrome: listen for the native install event
         const handleBeforeInstallPrompt = (e) => {
-            // Prevent the default browser mini-infobar from appearing on mobile
             e.preventDefault();
-            // Stash the event so it can be triggered later.
             setInstallPrompt(e);
 
-            // Only show if not already in standalone mode
-            if (!checkStandalone()) {
-                // Delay showing to not annoy user immediately
-                const timer = setTimeout(() => {
-                    setIsVisible(true);
-                }, 5000);
-                return () => clearTimeout(timer);
-            }
+            // Show our custom prompt after a short delay (only once ever)
+            const timer = setTimeout(() => setIsVisible(true), 5000);
+            return () => clearTimeout(timer);
         };
 
         window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
 
-        // For iOS, show the prompt manually as they don't support beforeinstallprompt
-        if (isIOSDevice && !checkStandalone()) {
-            const timer = setTimeout(() => {
-                setIsVisible(true);
-            }, 8000); // Wait a bit longer for iOS
-            return () => clearTimeout(timer);
+        // iOS: show manual instructions after delay (only once ever)
+        let iosTimer;
+        if (isIOSDevice) {
+            iosTimer = setTimeout(() => setIsVisible(true), 8000);
         }
 
         return () => {
             window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+            if (iosTimer) clearTimeout(iosTimer);
         };
-    }, []);
+    }, []); // ← runs ONCE on mount, never again on route change
+
+    const handleDismiss = () => {
+        setIsVisible(false);
+        // Remember the user dismissed — don't show again this session or future
+        localStorage.setItem(DISMISSED_KEY, '1');
+    };
 
     const handleInstallClick = async () => {
         if (!installPrompt) return;
 
-        // Show the native install prompt
         installPrompt.prompt();
-
-        // Wait for the user to respond to the prompt
         const { outcome } = await installPrompt.userChoice;
 
         if (outcome === 'accepted') {
-            console.log('User accepted the PWA install');
+            localStorage.setItem(INSTALLED_KEY, '1');
+        } else {
+            // User declined the native prompt — don't pester them again
+            localStorage.setItem(DISMISSED_KEY, '1');
         }
 
         setInstallPrompt(null);
         setIsVisible(false);
     };
 
-    if (!isVisible || isStandalone) return null;
+    if (!isVisible) return null;
 
     return (
         <AnimatePresence>
             <motion.div
+                key="pwa-prompt"
                 initial={{ y: 100, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 exit={{ y: 100, opacity: 0 }}
@@ -81,10 +90,11 @@ const PWAInstallPrompt = () => {
             >
                 <div className="relative group p-[2px] rounded-2xl bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 shadow-[0_0_30px_rgba(124,58,237,0.3)]">
                     <div className="bg-[#050508]/95 backdrop-blur-2xl rounded-[14px] p-5 border border-white/10">
-                        {/* Close Button */}
+                        {/* Close / Dismiss Button */}
                         <button
-                            onClick={() => setIsVisible(false)}
+                            onClick={handleDismiss}
                             className="absolute top-3 right-3 p-1.5 rounded-full hover:bg-white/10 transition-colors"
+                            aria-label="Dismiss install prompt"
                         >
                             <X className="w-4 h-4 text-white/40" />
                         </button>
@@ -102,7 +112,7 @@ const PWAInstallPrompt = () => {
 
                         <div className="mt-6">
                             {isIOS ? (
-                                <div className="flex flex-col gap-3 p-3.5 bg-white/5 rounded-xl border border-white/10 animate-pulse-slow">
+                                <div className="flex flex-col gap-3 p-3.5 bg-white/5 rounded-xl border border-white/10">
                                     <p className="text-xs text-blue-300/80 font-medium flex items-center gap-2">
                                         <Share className="w-4 h-4" /> IOS INSTALL PROTOCOL:
                                     </p>

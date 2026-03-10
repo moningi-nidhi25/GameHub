@@ -1,99 +1,98 @@
-# GameHub: Technical Documentation
+# GameHub: Technical Documentation (v2.0.0)
 
-Welcome to the technical deep-dive of **GameHub: Cosmic Edition**. This document provides detailed information about the system architecture, API endpoints, and development workflows.
+Welcome to the technical deep-dive of **GameHub: Cosmic Edition**. This document provides an engineering overview of the system architecture, authentication protocols, and integration engines.
 
 ---
 
 ## 🏗️ System Architecture
 
-GameHub follows a modern **Decoupled Architecture**:
+GameHub uses a **Stateless Decoupled Architecture** built for speed and horizontal scalability.
 
-- **Frontend**: A high-performance Single Page Application (SPA) built with **React 19** and **Vite**. It handles all UI rendering, game state, and user interactions.
-- **Backend**: A **Django REST Framework (DRF)** API server that manages user accounts, global leaderboards, game analytics, and security.
-- **Communication**: The frontend communicates with the backend via **RESTful APIs** using **Axios** with JWT (JSON Web Token) authentication.
+-   **Frontend**: Built with **React 19** and **Vite 7**. It utilizes a "Mobile-First" responsive strategy and Framer Motion for high-fidelity animations.
+-   **Backend**: A **Django 4.2+ REST Framework** server handling business logic, data persistence, and security.
+-   **Database**: SQLite for development; configured for **PostgreSQL** in production environments.
+-   **PWA**: Service workers via `vite-plugin-pwa` enable offline capabilities and a native-app experience.
 
-### Component Diagram
+### Component Logic Flow
 ```mermaid
-graph LR
-    User((User)) --> Frontend[React SPA]
-    Frontend -->|JWT Auth / API Requests| Backend[Django API]
-    Backend --> DB[(SQLite/PostgreSQL)]
-    Frontend --> Static[HTML5 Game Canvas]
+graph TD
+    User((Player)) -->|Interacts| Frontend[React SPA]
+    Frontend -->|JWT Bearer| API[DRF API Layer]
+    API -->|ORM| DB[(Database)]
+    Frontend -->|Iframe| Games[HTML5 Game Engine]
+    Google[Google Identity] -->|id_token| Frontend
+    Frontend -->|Verify| API
 ```
 
 ---
 
-## 🔐 Authentication Protocol
+## 🔐 Authentication Ecosystem
 
-We use **JWT (SimpleJWT)** for secure, stateless authentication.
+### 1. JWT Implementation
+We implement stateless session management via `djangorestframework-simplejwt`.
+-   **Access Token**: 24-hour lifetime.
+-   **Refresh Token**: 7-day lifetime with rotation enabled.
+-   **Interceptors**: Axios interceptors handle automatic `401` retries using the refresh token.
 
-1. **Login**: User sends credentials to `/api/token/`.
-2. **Access Token**: Server returns an access and refresh token.
-3. **Authorization**: Frontend includes the access token in the `Authorization: Bearer <token>` header for protected routes.
-4. **Refresh**: When the access token expires, the frontend uses the refresh token to get a new one without logging the user out.
+### 2. Google OAuth 2.0 (`id_token` Flow)
+To bypass Cross-Origin-Opener-Policy (COOP) complications with popups:
+-   **Frontend**: Uses `@react-oauth/google` with the `<GoogleLogin>` iframe-based component.
+-   **Backend**: Verifies the `id_token` (credential) using the `google-auth` Python library. This eliminates the need for extra network calls to Google's userinfo endpoint.
 
----
-
-## 📡 API Reference
-
-### Accounts & Auth
-| Endpoint | Method | Description |
-| :--- | :--- | :--- |
-| `/api/register/` | `POST` | Create a new cosmic citizen account. |
-| `/api/token/` | `POST` | Obtain access & refresh tokens. |
-| `/api/token/refresh/` | `POST` | Refresh expired access tokens. |
-| `/api/profile/` | `GET/PUT` | Manage user profile and stats. |
-
-### Leaderboard & Analytics
-| Endpoint | Method | Description |
-| :--- | :--- | :--- |
-| `/api/leaderboard/` | `GET` | Fetch global rankings across all games. |
-| `/api/game-stats/` | `POST` | Record a new high score or game session. |
+### 3. Password Recovery
+-   **Flow**: Email-based token generation using Django's `default_token_generator`.
+-   **Protocol**: UID + Token validation ensures secure password resets without existing session state.
 
 ---
 
-## 🎮 Game Integration Engine
+## 📡 API Architecture
 
-Games in GameHub are encapsulated as static HTML5 components.
+All endpoints are served under the `/api/` prefix.
 
-### Directory Mapping
-All game assets are served from the Vite public directory:
-`frontend/public/games/<game-id>/index.html`
-
-### Data Schema (`games.js`)
-Frontend registry for games:
-```javascript
-{
-    id: "snake-cosmic",
-    title: "Snake: Void Runner",
-    description: "Navigate the void and collect energy orbs.",
-    image: "/assets/games/snake.png",
-    file: "/games/snake/index.html",
-    category: "arcade",
-    difficulty: "Medium"
-}
-```
+### Core Endpoints
+| Category | Endpoint | Method | Payload |
+| :--- | :--- | :--- | :--- |
+| **Auth** | `/api/auth/login/` | `POST` | `username`, `password` |
+| **Auth** | `/api/auth/register/` | `POST` | `username`, `email`, `password1/2` |
+| **Auth** | `/api/auth/google/` | `POST` | `credential` (id_token) |
+| **Auth** | `/api/auth/password-reset/` | `POST` | `email` |
+| **User** | `/api/profile/` | `GET` | *Requires JWT* |
+| **Data** | `/api/leaderboard/` | `GET` | Global Rankings |
+| **Stats** | `/api/save-score/` | `POST` | `game_id`, `score` |
 
 ---
 
-## 🛠️ Development Workflow
+## 📱 Progressive Web App (PWA)
 
-### Frontend Styling
-We use **Tailwind CSS 4** for styling. The "Cosmic Neon" design system is defined in `tailwind.config.js` and `index.css` using CSS variables for high customizability.
-
-### State Management
-**Zustand** is used for global state (Auth, User Stats, UI Overlays). It provides a lightweight, hook-based alternative to Redux.
+GameHub is fully PWA-compliant.
+-   **Manifest**: Defines cosmic theme colors (`#050508`) and high-res icons.
+-   **Smart Prompt**: The `PWAInstallPrompt` component uses `localStorage` to ensure the "Download App" banner only appears once per user. If dismissed, it is suppressed to maintain a premium UX.
+-   **Protocol Headers**: Vite is configured with `Cross-Origin-Opener-Policy: same-origin-allow-popups` to support secure OAuth flows.
 
 ---
 
-## 🚢 Deployment Strategy
+## 🛠️ Engineering Workflows
 
-- **Frontend**: Optimized for edge deployment (Vercel, Netlify).
-- **Backend**: Containerized (Docker) for consistent environments on Railway or Render.
-- **Database**: Uses SQLite for local development and PostgreSQL for production.
+### Styling Logic
+-   **Tailwind CSS 4**: Utilizes a zero-runtime approach. Cosmic design tokens (Neon Blues, Purples) are defined as CSS variables in `index.css`.
+-   **Micro-interactions**: Framer Motion handles layout transitions and component entry animations.
+
+### State Orchestration
+**Zustand** manages the global `authStore`.
+-   **Persistence**: Auth state is synced with `localStorage`.
+-   **Interactivity**: Stores player stats, high scores, and sync states.
+
+---
+
+## 🚢 Production Configuration
+
+### Security Headers
+The server must be configured with:
+-   `Cross-Origin-Opener-Policy: same-origin-allow-popups`
+-   `Access-Control-Allow-Credentials: true`
 
 ---
 
 <p align="center">
-  <i>Documentation version 1.0.0 | Updated by Chirag1724</i>
+  <i>Documentation version 2.0.0 | Refactored for Cosmic Edition Hybrid Architecture | Last Updated: 10-03-2026 | By Chirag1724</i>
 </p>

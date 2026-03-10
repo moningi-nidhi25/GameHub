@@ -96,6 +96,10 @@ export default defineConfig(({ mode }) => {
       })
     ],
     server: {
+      headers: {
+        // Required for Google OAuth popup to communicate back to the parent window
+        'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
+      },
       proxy: {
         '/api': 'http://localhost:8000',
         '/accounts': 'http://localhost:8000',
