@@ -47,7 +47,7 @@
 
 ---
 
-### Protocol Guidelines (ECWoC26)
+### Protocol Guidelines
 > [!IMPORTANT]
 > *   **Star the Repo**: Your contribution only counts if you've starred the repository. ⭐
 > *   **Documentation**: Proper docs are required for every new feature. Share them via mail.
