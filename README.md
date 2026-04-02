@@ -1,13 +1,11 @@
 <a name="-top"></a>
 
 <div align="center">
-  ## Star History
-
-<a href="https://www.star-history.com/?repos=instructkr%2Fclaw-code&type=date&legend=top-left">
+<a href="https://www.star-history.com/?repos=kaifansariw%2FGameHub&type=date&legend=top-left">
  <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/image?repos=instructkr/claw-code&type=date&theme=dark&legend=top-left" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/image?repos=instructkr/claw-code&type=date&legend=top-left" />
-   <img alt="Star History Chart" src="https://api.star-history.com/image?repos=instructkr/claw-code&type=date&legend=top-left" />
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/image?repos=kaifansariw/GameHub&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/image?repos=kaifansariw/GameHub&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/image?repos=kaifansariw/GameHub&type=date&legend=top-left" />
  </picture>
 </a>
 
