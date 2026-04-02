@@ -1,7 +1,16 @@
 <a name="-top"></a>
 
 <div align="center">
-  <img src="frontend/public/favicon.svg" width="80" alt="GameHub Logo">
+  ## Star History
+
+<a href="https://www.star-history.com/?repos=instructkr%2Fclaw-code&type=date&legend=top-left">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/image?repos=instructkr/claw-code&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/image?repos=instructkr/claw-code&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/image?repos=instructkr/claw-code&type=date&legend=top-left" />
+ </picture>
+</a>
+
   <h1>GameHub: Cosmic Edition</h1>
   
   <p align="center">
