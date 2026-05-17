@@ -36,8 +36,11 @@ const SEO = ({ title, description, keywords }) => {
                 metaKeywords.name = "keywords";
                 document.head.appendChild(metaKeywords);
             }
-            metaKeywords.setAttribute('content', typeof keywords === 'array' ? keywords.join(', ') : keywords);
-        }
+           metaKeywords.setAttribute(
+           'content',
+       Array.isArray(keywords) ? keywords.join(', ') : keywords
+   );
+    }
 
         // Update OG URL
         const ogUrl = document.querySelector('meta[property="og:url"]');
