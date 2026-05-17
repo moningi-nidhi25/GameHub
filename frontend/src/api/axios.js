@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { useAuthStore } from '../store/authStore';
 
-const API_BASE_URL = '/api/';
+const API_BASE_URL = 'https://gamehub-kd7m.onrender.com/api/';
 
 const api = axios.create({
     baseURL: API_BASE_URL,
