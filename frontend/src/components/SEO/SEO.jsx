@@ -5,12 +5,11 @@ const SEO = ({ title, description, keywords }) => {
     const location = useLocation();
 
     useEffect(() => {
-        // Update Title - Format: "Title | GameHub" or just "GameHub" for home
         const baseTitle = "GameHub";
         const suffix = "Cosmic Edition";
         document.title = title ? `${title} | ${baseTitle}` : `${baseTitle} | ${suffix}`;
 
-        // Update Meta Description
+       
         if (description) {
             let metaDesc = document.querySelector('meta[name="description"]');
             if (!metaDesc) {
@@ -28,7 +27,6 @@ const SEO = ({ title, description, keywords }) => {
             if (twitterDesc) twitterDesc.setAttribute('content', description);
         }
 
-        // Update Meta Keywords
         if (keywords) {
             let metaKeywords = document.querySelector('meta[name="keywords"]');
             if (!metaKeywords) {
