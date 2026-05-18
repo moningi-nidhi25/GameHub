@@ -2,18 +2,8 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.jsx'
 import './index.css'
-import { registerSW } from 'virtual:pwa-register'
 import { GoogleOAuthProvider } from '@react-oauth/google'
 
-// Automatic service worker updates
-const _updateSW = registerSW({
-  onNeedRefresh() {
-    console.log('New content available, click to refresh');
-  },
-  onOfflineReady() {
-    console.log('App ready to work offline');
-  },
-})
 
 // Add Professional Google Fonts
 const link = document.createElement('link');
