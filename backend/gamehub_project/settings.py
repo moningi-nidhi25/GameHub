@@ -30,17 +30,24 @@ INSTALLED_APPS = [
     'corsheaders',
     'drf_spectacular',
     'accounts',
+
     'django.contrib.sites',
+
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
 ]
 
+SITE_ID = 1
+
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    
+    'allauth.account.middleware.AccountMiddleware',
+
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -66,6 +73,11 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'gamehub_project.wsgi.application'
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+)
 
 DATABASES = {
     'default': {
@@ -187,4 +199,13 @@ SPECTACULAR_SETTINGS = {
     'PREPROCESSING_HOOKS': ['drf_spectacular.hooks.preprocess_exclude_path_format'],
     'POSTPROCESSING_HOOKS': ['drf_spectacular.hooks.postprocess_schema_enums'],
     'COMPONENT_SPLIT_REQUEST': True,
+}
+
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'APP': {
+            'client_id': os.getenv("GOOGLE_CLIENT_ID"),
+            'secret': os.getenv("GOOGLE_CLIENT_SECRET"),
+        }
+    }
 }
