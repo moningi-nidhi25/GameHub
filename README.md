@@ -29,7 +29,7 @@
   </p>
 
   <p align="center">
-    <a href="https://gamehub-cosmic.vercel.app">
+    <a href="[https://gamehub-cosmic.vercel.app](https://game-hub-jade-three.vercel.app)">
       <img src="https://img.shields.io/badge/Live%20Demo-Deploy%20Sync-7c3aed?style=for-the-badge&logo=rocket&logoColor=white" alt="Live Demo">
     </a>
   </p>
@@ -207,6 +207,14 @@ GOOGLE_CLIENT_SECRET=your_google_oauth_client_secret
 > Add `http://localhost:5173` and `http://localhost:8000` as an **Authorized JavaScript Origin**.
 
 ---
+
+## 🌍 Live Deployment
+
+### Frontend (Vercel)
+https://game-hub-jade-three.vercel.app
+
+### Backend API (Render)
+https://gamehub-kd7m.onrender.com
 
 ## 📡 API Reference
 
