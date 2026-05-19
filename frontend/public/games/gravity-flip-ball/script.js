@@ -11,16 +11,19 @@ const jumpSound = document.getElementById("jumpSound");
 const gameOverSound = document.getElementById("gameOverSound");
 
 let ball = { x: 100, y: 200, radius: 15, vy: 0 };
-let gravity = 0.5;
+let gravity = 0.25;
+let flipStrength = -4;
 let obstacles = [];
-let gameInterval;
 let score = 0;
 let isPaused = false;
+let isGameOver = false;
+let gameStarted = false;
+let animationId = null;
 
 function generateObstacle() {
-  const gap = 100;
+  const gap = 130;
   const width = 20;
-  const heightTop = Math.random() * 150 + 50;
+  const heightTop = Math.random() * 130 + 50;
   const heightBottom = canvas.height - heightTop - gap;
   obstacles.push({
     x: canvas.width,
@@ -29,6 +32,7 @@ function generateObstacle() {
     yBottom: canvas.height - heightBottom,
     hBottom: heightBottom,
     width,
+    passed: false
   });
 }
 
@@ -53,7 +57,14 @@ function drawObstacles() {
 }
 
 function updateObstacles() {
-  obstacles.forEach(obs => obs.x -= 3);
+  obstacles.forEach((obs) => {
+    obs.x -= 2;
+    if (!obs.passed && obs.x + obs.width < ball.x) {
+      obs.passed = true;
+      score++;
+      scoreEl.textContent = score;
+    }
+  });
   obstacles = obstacles.filter(obs => obs.x + obs.width > 0);
   if (obstacles.length === 0 || obstacles[obstacles.length-1].x < 300) {
     generateObstacle();
@@ -65,6 +76,7 @@ function checkCollision() {
     if (ball.x + ball.radius > obs.x && ball.x - ball.radius < obs.x + obs.width) {
       if (ball.y - ball.radius < obs.hTop || ball.y + ball.radius > obs.yBottom) {
         gameOver();
+        return ;
       }
     }
   }
@@ -74,10 +86,13 @@ function checkCollision() {
 }
 
 function gameLoop() {
+  if (isGameOver) return;
   if (isPaused) return;
   ctx.clearRect(0,0,canvas.width,canvas.height);
 
   ball.vy += gravity;
+  if (ball.vy > 5) ball.vy = 5;
+  if (ball.vy < -5) ball.vy = -5;
   ball.y += ball.vy;
 
   drawBall();
@@ -85,10 +100,7 @@ function gameLoop() {
   updateObstacles();
   checkCollision();
 
-  score += 0.01;
-  scoreEl.textContent = Math.floor(score);
-
-  requestAnimationFrame(gameLoop);
+  animationId = requestAnimationFrame(gameLoop);
 }
 
 function startGame() {
@@ -96,6 +108,9 @@ function startGame() {
   obstacles = [];
   score = 0;
   isPaused = false;
+  isGameOver = false;
+  gameStarted = true;
+  scoreEl.textContent = "0";
   generateObstacle();
   gameLoop();
 }
@@ -117,14 +132,21 @@ function restartGame() {
 }
 
 function flipGravity() {
-  ball.vy = -ball.vy - 5;
+  if (isPaused || isGameOver || !gameStarted ) {
+    return;
+  }
+
+  ball.vy = flipStrength;
+  jumpSound.currentTime = 0;
   jumpSound.play();
 }
 
 function gameOver() {
+  isGameOver = true;
+  cancelAnimationFrame(animationId);
+  gameOverSound.currentTime = 0;
   gameOverSound.play();
-  alert("Game Over! Score: " + Math.floor(score));
-  restartGame();
+  alert( "Game Over!\nScore: " + Math.floor(score));
 }
 
 startBtn.addEventListener("click", startGame);
@@ -132,5 +154,11 @@ pauseBtn.addEventListener("click", pauseGame);
 resumeBtn.addEventListener("click", resumeGame);
 restartBtn.addEventListener("click", restartGame);
 
-document.addEventListener("keydown", flipGravity);
+document.addEventListener("keydown", (e) => {
+    if (e.code === "Space") {
+      e.preventDefault();
+      flipGravity();
+    }
+  }
+);
 canvas.addEventListener("click", flipGravity);
