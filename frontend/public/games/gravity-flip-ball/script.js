@@ -13,7 +13,6 @@ const gameOverSound = document.getElementById("gameOverSound");
 let ball = { x: 100, y: 200, radius: 15, vy: 0 };
 let gravity = 0.5;
 let obstacles = [];
-let gameInterval;
 let score = 0;
 let isPaused = false;
 
