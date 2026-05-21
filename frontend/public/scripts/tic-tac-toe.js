@@ -116,5 +116,11 @@ function saveScores() {
     localStorage.setItem('ticTacToeScores', JSON.stringify(scores));
 }
 
+const saveScoreToServer = window.saveScoreToServer || (() => {});
+
 // Initialize game when page loads
 document.addEventListener('DOMContentLoaded', initGame);
+
+window.makeMove = makeMove;
+window.resetGame = resetGame;
+window.getCSRFToken = getCSRFToken;
